@@ -2,18 +2,16 @@ import java.util.Random;
 
 public class SpeechToTextService {
 
-    private static final double COST_PER_CALL = 0.05;
-    private static final int SIMULATED_LATENCY_MS = 200;
+    private static final double BASE_COST_PER_CALL = 0.01;
+    private static final double COST_PER_SECOND = 0.002;
 
     private final Random random;
 
-    public SpeechToTextService(long randomSeed) {
-        this.random = new Random(randomSeed);
+    public SpeechToTextService(long seed) {
+        this.random = new Random(seed);
     }
 
     public SpeechToTextResult search(Scenario scenario, int windowStart, int windowEnd) {
-        simulateLatency();
-
         int groundTruth = scenario.getGroundTruthTimestamp();
         boolean targetInWindow = groundTruth >= windowStart && groundTruth <= windowEnd;
 
@@ -40,14 +38,9 @@ public class SpeechToTextService {
             }
         }
 
-        return new SpeechToTextResult(found, confidence, COST_PER_CALL);
-    }
+        int windowSizeSeconds = windowEnd - windowStart;
+        double cost = BASE_COST_PER_CALL + (COST_PER_SECOND * windowSizeSeconds);
 
-    private void simulateLatency() {
-        try {
-            Thread.sleep(SIMULATED_LATENCY_MS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        return new SpeechToTextResult(found, confidence, cost);
     }
 }
