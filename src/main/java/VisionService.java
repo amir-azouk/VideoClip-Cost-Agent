@@ -44,9 +44,13 @@ public class VisionService {
             }
         }
 
-        double cost = COST_PER_FRAME * frameCount;
+        double cost = estimateCost(frameCount);
 
         return new VisionResult(found, confidence, cost, frameCount);
+    }
+
+    public static double estimateCost(int frameCount) {
+        return COST_PER_FRAME * frameCount;
     }
 
     private void simulateLatency() {

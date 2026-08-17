@@ -42,8 +42,8 @@ public class Agent {
 
         // Decide: retry wider STT, or escalate to vision?
         boolean veryLowConfidence = sttResult.getConfidence() < 0.3;
-        double widerSttCost = 0.05;
-        double visionCost = 0.02 * 10;
+        double widerSttCost = SpeechToTextService.estimateCost(60); // wide window is 60s (±30s)
+        double visionCost = VisionService.estimateCost(10); // default 10 frames
 
         if (veryLowConfidence) {
             if (costTracker.canAfford(visionCost)) {
@@ -92,7 +92,7 @@ public class Agent {
             return new AgentResult(scenario, true, guess, costTracker, decisions);
         }
 
-        double visionCost = 0.02 * 10;
+        double visionCost = VisionService.estimateCost(10);
         if (costTracker.canAfford(visionCost)) {
             return escalateToVision(scenario, guess, costTracker, decisions,
                     "Wider retry still inconclusive, escalating to vision as last resort");

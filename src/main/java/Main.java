@@ -34,7 +34,7 @@ public class Main {
                 400,
                 90,
                 40,
-                0.35
+                0.40
         ));
 
         int choice = promptForScenarioChoice(scenarios);
