@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class AgentResult {
@@ -40,24 +41,27 @@ public class AgentResult {
         return decisions;
     }
 
-    public void printReport() {
-        SlowPrinter.println("=== " + scenario.getName() + " ===");
-        SlowPrinter.println("Target: " + scenario.getTargetDescription());
-        System.out.println();
+    public List<String> getReportLines() {
+        List<String> lines = new ArrayList<>();
+
+        lines.add("=== " + scenario.getName() + " ===");
+        lines.add("Target: " + scenario.getTargetDescription());
+        lines.add("");
 
         int stepNumber = 1;
         for (Decision decision : decisions) {
-            decision.print(stepNumber);
+            lines.addAll(decision.getLines(stepNumber));
             stepNumber++;
         }
 
-        System.out.println();
-        SlowPrinter.println(success
+        lines.add("");
+        lines.add(success
                 ? "RESULT: Success - clip located at ~" + finalTimestampGuess + "s"
                 : "RESULT: Gave up - best guess ~" + finalTimestampGuess + "s (see reasoning above)");
 
-        System.out.println();
-        costTracker.printBreakdown();
-        System.out.println();
+        lines.add("");
+        lines.addAll(costTracker.getBreakdownLines());
+
+        return lines;
     }
 }

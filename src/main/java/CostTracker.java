@@ -52,12 +52,14 @@ public class CostTracker {
         return charges;
     }
 
-    public void printBreakdown() {
-        SlowPrinter.println("--- Cost breakdown ---");
+    public List<String> getBreakdownLines() {
+        List<String> lines = new ArrayList<>();
+        lines.add("--- Cost breakdown ---");
         for (Charge charge : charges) {
-            SlowPrinter.printf("  %-20s £%.2f%n", charge.getServiceName(), charge.getAmount());
+            lines.add(String.format("  %-25s £%.2f", charge.getServiceName(), charge.getAmount()));
         }
-        SlowPrinter.printf("  %-20s £%.2f%n", "TOTAL", getTotalSpent());
-        SlowPrinter.printf("  %-20s £%.2f%n", "Budget was", budgetPounds);
+        lines.add(String.format("  %-25s £%.2f", "TOTAL", getTotalSpent()));
+        lines.add(String.format("  %-25s £%.2f", "Budget was", budgetPounds));
+        return lines;
     }
 }

@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Decision {
 
     private final String stepDescription;
@@ -28,10 +31,12 @@ public class Decision {
         return costSoFar;
     }
 
-    public void print(int stepNumber) {
-        SlowPrinter.println("Step " + stepNumber + ": " + stepDescription);
-        SlowPrinter.println("  Outcome:   " + outcome);
-        SlowPrinter.println("  Reasoning: " + reasoning);
-        SlowPrinter.printf("  Cost so far: £%.2f%n", costSoFar);
+    public List<String> getLines(int stepNumber) {
+        List<String> lines = new ArrayList<>();
+        lines.add("Step " + stepNumber + ": " + stepDescription);
+        lines.add("  Outcome:   " + outcome);
+        lines.add("  Reasoning: " + reasoning);
+        lines.add(String.format("  Cost so far: £%.2f", costSoFar));
+        return lines;
     }
 }
