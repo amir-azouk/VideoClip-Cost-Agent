@@ -1,6 +1,8 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +15,8 @@ public class AgentGui extends JFrame {
 
     private final JComboBox<String> scenarioSelector;
     private final JTextField videoLengthField;
+    private final JButton selectFileButton;
+    private final JLabel selectedFileLabel;
     private final JTextField targetDescriptionField;
     private final JTextField guessTimestampField;
     private final JTextField budgetField;
@@ -20,6 +24,7 @@ public class AgentGui extends JFrame {
     private final JTextArea outputArea;
 
     private final List<Scenario> presetScenarios;
+    private String selectedFileName = null;
 
     public AgentGui() {
         super("Video Clip Cost Agent");
@@ -34,6 +39,10 @@ public class AgentGui extends JFrame {
         });
 
         videoLengthField = new JTextField();
+        selectFileButton = new JButton("Select video file...");
+        selectedFileLabel = new JLabel("No file selected (you can also type a length manually)");
+        selectedFileLabel.setFont(selectedFileLabel.getFont().deriveFont(Font.ITALIC, 11f));
+
         targetDescriptionField = new JTextField();
         guessTimestampField = new JTextField();
         budgetField = new JTextField();
@@ -49,12 +58,13 @@ public class AgentGui extends JFrame {
         add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
         scenarioSelector.addActionListener(e -> updateCustomFieldsEnabled());
+        selectFileButton.addActionListener(this::onSelectFileClicked);
         runButton.addActionListener(this::onRunClicked);
 
         updateCustomFieldsEnabled();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(700, 600);
+        setSize(700, 650);
         setLocationRelativeTo(null);
     }
 
@@ -66,11 +76,20 @@ public class AgentGui extends JFrame {
         panel.add(labelled("Scenario:", scenarioSelector));
         panel.add(Box.createVerticalStrut(8));
 
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 8, 8));
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 8));
         formPanel.setBorder(BorderFactory.createTitledBorder(
                 "Custom scenario details (used only if 'Custom scenario' is selected)"));
+
         formPanel.add(new JLabel("Video length (seconds):"));
-        formPanel.add(videoLengthField);
+        JPanel videoLengthRow = new JPanel(new BorderLayout(6, 0));
+        videoLengthField.setEditable(true);
+        videoLengthRow.add(videoLengthField, BorderLayout.CENTER);
+        videoLengthRow.add(selectFileButton, BorderLayout.EAST);
+        formPanel.add(videoLengthRow);
+
+        formPanel.add(new JLabel(""));
+        formPanel.add(selectedFileLabel);
+
         formPanel.add(new JLabel("Target description:"));
         formPanel.add(targetDescriptionField);
         formPanel.add(new JLabel("Your rough guess (seconds):"));
@@ -95,9 +114,36 @@ public class AgentGui extends JFrame {
     private void updateCustomFieldsEnabled() {
         boolean isCustom = scenarioSelector.getSelectedIndex() == 3;
         videoLengthField.setEnabled(isCustom);
+        selectFileButton.setEnabled(isCustom);
         targetDescriptionField.setEnabled(isCustom);
         guessTimestampField.setEnabled(isCustom);
         budgetField.setEnabled(isCustom);
+    }
+
+    private void onSelectFileClicked(ActionEvent event) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Video files (.mp4, .mov)", "mp4", "mov"));
+
+        int result = fileChooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File file = fileChooser.getSelectedFile();
+
+        try {
+            int durationSeconds = VideoMetadataReader.readDurationSeconds(file);
+            videoLengthField.setText(String.valueOf(durationSeconds));
+            videoLengthField.setEditable(false);
+            selectedFileName = file.getName();
+            selectedFileLabel.setText("Using real duration from: " + selectedFileName + " (" + durationSeconds + "s)");
+        } catch (Exception e) {
+            selectedFileName = null;
+            videoLengthField.setEditable(true);
+            showError("Could not read duration from this file (" + e.getMessage() + "). "
+                    + "This can happen with some MP4/MOV files depending on how they were encoded. "
+                    + "You can still type the video length manually below.");
+        }
     }
 
     private void onRunClicked(ActionEvent event) {
@@ -174,7 +220,11 @@ public class AgentGui extends JFrame {
             // Ground truth is intentionally never shown - the agent has to find it
             // "blind", exactly like a real speech-to-text/vision service would have to.
 
-            return new Scenario("Custom scenario", targetDescription, videoLength, groundTruth, guess, budget);
+            String name = selectedFileName != null
+                    ? "Custom scenario (" + selectedFileName + ")"
+                    : "Custom scenario";
+
+            return new Scenario(name, targetDescription, videoLength, groundTruth, guess, budget);
 
         } catch (NumberFormatException e) {
             showError("Please check your numeric fields (video length, guess, budget).");
