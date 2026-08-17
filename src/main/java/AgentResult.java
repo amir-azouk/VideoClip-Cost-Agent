@@ -41,8 +41,8 @@ public class AgentResult {
     }
 
     public void printReport() {
-        System.out.println("=== " + scenario.getName() + " ===");
-        System.out.println("Target: " + scenario.getTargetDescription());
+        SlowPrinter.println("=== " + scenario.getName() + " ===");
+        SlowPrinter.println("Target: " + scenario.getTargetDescription());
         System.out.println();
 
         int stepNumber = 1;
@@ -52,7 +52,7 @@ public class AgentResult {
         }
 
         System.out.println();
-        System.out.println(success
+        SlowPrinter.println(success
                 ? "RESULT: Success - clip located at ~" + finalTimestampGuess + "s"
                 : "RESULT: Gave up - best guess ~" + finalTimestampGuess + "s (see reasoning above)");
 

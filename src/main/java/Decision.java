@@ -29,9 +29,9 @@ public class Decision {
     }
 
     public void print(int stepNumber) {
-        System.out.println("Step " + stepNumber + ": " + stepDescription);
-        System.out.println("  Outcome:   " + outcome);
-        System.out.println("  Reasoning: " + reasoning);
-        System.out.printf("  Cost so far: £%.2f%n", costSoFar);
+        SlowPrinter.println("Step " + stepNumber + ": " + stepDescription);
+        SlowPrinter.println("  Outcome:   " + outcome);
+        SlowPrinter.println("  Reasoning: " + reasoning);
+        SlowPrinter.printf("  Cost so far: £%.2f%n", costSoFar);
     }
 }

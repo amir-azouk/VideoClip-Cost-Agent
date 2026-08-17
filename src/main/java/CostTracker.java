@@ -53,11 +53,11 @@ public class CostTracker {
     }
 
     public void printBreakdown() {
-        System.out.println("--- Cost Breakdown ---");
+        SlowPrinter.println("--- Cost breakdown ---");
         for (Charge charge : charges) {
-            System.out.printf("  %-20s £%.2f%n", charge.getServiceName(), charge.getAmount());
+            SlowPrinter.printf("  %-20s £%.2f%n", charge.getServiceName(), charge.getAmount());
         }
-        System.out.printf("  %-20s £%.2f%n", "TOTAL", getTotalSpent());
-        System.out.printf("  %-20s £%.2f%n", "Budget was", budgetPounds);
+        SlowPrinter.printf("  %-20s £%.2f%n", "TOTAL", getTotalSpent());
+        SlowPrinter.printf("  %-20s £%.2f%n", "Budget was", budgetPounds);
     }
 }
